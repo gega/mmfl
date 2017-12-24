@@ -3,7 +3,7 @@ minimalist message framing library
 
 prefixed length generic stream protocol format like netstrings
 
-- implemented as macro
+- implemented as macros
 - no need to link to anything
 - few lines only
 - no heap usage
