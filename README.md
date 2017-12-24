@@ -21,8 +21,10 @@ prefixed length generic stream protocol format like netstrings
 
 messages on wire 
 
-> `11 hello world2 ok`
-> `msg1          msg2`
+```
+11 hello world2 ok
+msg1          msg2
+```
 
 format: `len <space> message`
 
