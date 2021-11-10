@@ -14,18 +14,26 @@ int main(void)
   char buf[14];
   char *msg;
   int len,fd;
+  char fn[32];
+  int i;
 
-  fd=open("test.txt",0,O_RDONLY);
-  rb_init(&rbv,buf,sizeof(buf),fd);
+  for(i=0;;i++)
+  {
+    snprintf(fn,sizeof(fn),"test%d.txt",i);
+    if(0>(fd=open(fn,0,O_RDONLY))) break;
+    printf("%stesting '%s'\n",(i==0?"":"\n"),fn);
 
-  do {
-    rb_readmsg(&rbv,msg,len,read);
-    if(msg==NULL&&len>=0) perror("message truncated or buffer too small");
-    else if(msg==NULL&&len<0) perror("eof or error");
-    else printf("message: [%d] '%s'\n",len,msg);
-  } while(msg!=NULL);
-  
-  close(fd);
+    rb_init(&rbv,buf,sizeof(buf),fd);
+
+    do {
+      rb_readmsg(&rbv,msg,len,read);
+      if(msg==NULL&&len>=0) perror("message truncated or buffer too small");
+      else if(msg==NULL&&len<0) perror("eof or error");
+      else printf("message: [%d] '%s'\n",len,msg);
+    } while(msg!=NULL);
+    
+    close(fd);
+  }
 
   return(0);
 }

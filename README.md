@@ -16,17 +16,19 @@ prefixed length generic stream protocol format like netstrings
 - one memmove per message
 - every read-like i/o supported
 - intuitive API
+- message start detection
+- payload ASCII printable only (isprint())
 
 ## format
 
 messages on wire 
 
 ```
-11 hello world2 ok
-msg1          msg2
+\\n11 hello world\\n2 ok
+msg1            msg2
 ```
 
-format: `len <space> message`
+format: `\\n len <space> message`
 
 ## generating
 
