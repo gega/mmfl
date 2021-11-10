@@ -24,11 +24,11 @@ prefixed length generic stream protocol format like netstrings
 messages on wire 
 
 ```
-\\n11 hello world\\n2 ok
+\n11 hello world\n2 ok
 msg1            msg2
 ```
 
-format: `\\n len <space> message`
+format: `\n len <space> message`
 
 ## generating
 
