@@ -10,9 +10,9 @@
 
 static int mock_read_count[]=
 {
-  5,4,5,3,4,3,5,4,2,3,3,1,3,2,5,5,1,2,3,3,1,1,2,4,2,3,1,3,5,4,2,4,5,4,1,5,3,1,4,5,3,
+  5,4,100,3,4,3,5,1,2,3,3,1,3,2,5,5,1,2,3,3,100,1,2,4,2,3,1,3,5,4,2,4,5,4,1,5,3,1,4,5,3,
   5,1,1,3,5,2,2,5,2,2,3,1,5,4,1,1,1,1,1,1,2,4,5,5,4,5,5,2,2,1,3,2,3,4,1,2,2,4,1,3,1,
-  2,2,4,3,1,4,3,3,3,3,3,4,2,1,1,2,4,1,
+  100,100,100,100,100,100,100,100,
   -1
 };
 static int mock_read_idx=0;
@@ -27,7 +27,7 @@ static ssize_t mock_read(int fd, void *buf, size_t count)
   return(read(fd,buf,(cn<count?cn:count)));
 }
 
-static int bufsizes[]={ 15, 140, 5, -1 };
+static int bufsizes[]={ 15, 140, 64, 5, -1 };
 
 
 int main(int argc, char **argv)
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         if(NULL==(f=fopen(rn,"r"))) break;
         printf("testing '%s'\n",fn);
 
-        for(k=0;k<10;k++)
+        for(k=0;mock_read_count[k]>0;k++)
         {
           mock_read_idx=k;
           
@@ -66,11 +66,11 @@ int main(int argc, char **argv)
 
           RB_INIT(&rbv,buf,bufsizes[j],fd);
 
-          do {
-            RB_READMSG(&rbv,msg,len,mock_read);          
+          do
+          {
+            RB_READMSG(&rbv,msg,len,mock_read);
             if(msg==NULL&&len>=0)
             {
-               //printf("END\n");
                ;
             }
             else if(msg==NULL&&len<0) perror("eof or error");
@@ -86,7 +86,6 @@ int main(int argc, char **argv)
               {
                 printf("FAIL: read '%s' instead of '%s'\n",msg,rdb);
               }
-              //else printf("OK\n");
             }
           } while(msg!=NULL);
         }
