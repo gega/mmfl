@@ -7,13 +7,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
-
+#ifndef MMFL_FD_TYPE
+#define MMFL_FD_TYPE int
+#endif
 
 typedef struct rb_s
 {
   long bp;
   int bsiz;
-  int fd;
+  MMFL_FD_TYPE fd;
   char *buf;
   char *ep;
   long mlen;
