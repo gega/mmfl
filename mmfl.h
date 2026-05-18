@@ -110,7 +110,7 @@ do { \
     if((rs)->mlen<0&&0!=(rs)->sep) { \
       char *s=memchr((rs)->buf,' ',(rs)->bp); \
       if(s!=NULL) { \
-        (rs)->mlen=strtol((rs)->buf,&(rs)->ep,10); \
+        (rs)->mlen=strtol((rs)->buf,&(rs)->ep,MMFL_LEN_BASE); \
         if((rs)->mlen>0) { \
           (ln)=(rs)->mlen; \
           (rs)->mlen+=(rs)->ep-(rs)->buf+1; \
