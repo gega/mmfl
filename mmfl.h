@@ -60,7 +60,7 @@
 
 #define MMFL_HDR_MAX (3+(MMFL_TYPE_DIGITS(MMFL_FD_TYPE,MMFL_LEN_BASE)))
 
-#define MMFL_PEEK (1<<0)
+#define MMFL_PEEK (1)
 
 
 _Static_assert(MMFL_LEN_BASE>=2 && MMFL_LEN_BASE<=36, "length base must be between 2 and 36");
@@ -73,6 +73,7 @@ typedef struct rb_s
   char *buf;
   char *ep;
   long mlen;
+  long olen;
   char zero;
   int rdy;
   char sep;
@@ -97,7 +98,13 @@ typedef struct rb_s
 #define RB_READMSG(rs,rt,ln,rd,pk) \
 do { \
   if((rs)->buf==NULL) break; \
-  if((rs)->rdy) { \
+  if((rs)->rdy==1+MMFL_PEEK) { \
+    (rt)=(rs)->ep+1; \
+    (ln)=(rs)->olen; \
+    (rs)->rdy=(pk)+1; \
+    break; \
+  } \
+  if((rs)->rdy==1) { \
     memmove((rs)->buf,&(rs)->buf[(rs)->mlen],(rs)->bp-(rs)->mlen); \
     (rs)->buf[0]=(rs)->zero; \
     (rs)->bp-=(rs)->mlen; \
@@ -105,7 +112,7 @@ do { \
     (rs)->rdy=0; \
     (rs)->sep=0; \
   } \
-  while(1) { \
+  while((rs)->rdy==0) { \
     if((rs)->mlen<0&&0==(rs)->sep) { \
       char *n=memchr((rs)->buf,'\n',(rs)->bp); \
       if(NULL!=n) { \
@@ -122,9 +129,9 @@ do { \
       if(s!=NULL) { \
         (rs)->mlen=strtol((rs)->buf,&(rs)->ep,MMFL_LEN_BASE); \
         if((rs)->mlen>0) { \
+          (rs)->olen=(rs)->mlen; \
           (ln)=(rs)->mlen; \
           (rs)->mlen+=(rs)->ep-(rs)->buf+1; \
-          if((pk)) break; \
         } else { \
           (rs)->mlen=-1; \
           char *n=memchr((rs)->buf,'\n',(rs)->bp); \
@@ -147,9 +154,9 @@ do { \
       (rs)->zero=(rs)->buf[(rs)->mlen]; \
       (rs)->buf[(rs)->mlen]='\0'; \
       (rt)=(rs)->ep+1; \
-      (rs)->rdy=1; \
-      break; \
+      (rs)->rdy=(pk)+1; \
     } \
+    else break; \
   } \
 } while(0)
 
