@@ -50,7 +50,7 @@ rb_t reader;
 RB_INIT(&reader, buffer, sizeof(buffer), fd);
 ```
 
-### `RB_READMSG(rb, msg_ptr, msg_len, read_func)`
+### `RB_READMSG(rb, msg_ptr, msg_len, read_func, flags)`
 
 Reads and decodes the next complete message from the stream.
 
@@ -59,6 +59,7 @@ Reads and decodes the next complete message from the stream.
   - `msg_ptr`: Output pointer to the start of the message (within rb->buf).
   - `msg_len`: Output variable, will contain the length of the message.
   - `read_func`: A function with signature int (*)(int fd, void *buf, int len) for reading data from the stream (e.g., read() or your own source).
+  - `flags`: 0 for normal read and MMFL_PEEK for reading without advance the stream
 
   Returns:
     0 when a complete message is available.
