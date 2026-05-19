@@ -71,7 +71,7 @@ Reads and decodes the next complete message from the stream.
 ```c
 char *msg;
 int len;
-int rc = RB_READMSG(&reader, msg, len, my_read_func);
+int rc = RB_READMSG(&reader, msg, len, my_read_func, 0);
 if (rc == 0) {
     // msg points to message content of length len
 }
