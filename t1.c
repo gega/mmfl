@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <errno.h>
 
+#define MMFL_LEN_BASE 10
 #include "mmfl.h"
 
 
@@ -27,12 +28,11 @@ static ssize_t mock_read(int fd, void *buf, size_t count)
   return(read(fd,buf,(cn<count?cn:count)));
 }
 
-static int bufsizes[]={ 15, 140, 64, 5, -1 };
-
+static int bufsizes[]={ 19, 140, 640, MMFL_HDR_MAX+1, -1 };
 
 int main(int argc, char **argv)
 {
-  rb_t rbv;
+  mmfl_t rbv;
   char *buf;
   char *msg;
   int len,fd;
@@ -43,6 +43,7 @@ int main(int argc, char **argv)
   FILE *f;
 
   if(argc>1) ts=atoi(argv[1]);
+  printf("MMFL_HDR_MAX=%ld\n",MMFL_HDR_MAX);
   for(j=0;bufsizes[j]>0;j++)
   {
     printf("tests for buffer size %d\n",bufsizes[j]);
@@ -64,16 +65,23 @@ int main(int argc, char **argv)
           rewind(f);
           lseek(fd,0,SEEK_SET);
 
-          RB_INIT(&rbv,buf,bufsizes[j],fd);
+          MMFL_INIT(&rbv,buf,bufsizes[j],fd);
+          if(!MMFL_IS_INITED(&rbv)) { fprintf(stderr,"ERROR: mmfl does not inited!\n"); exit(1); }
 
           do
           {
-            RB_READMSG(&rbv,msg,len,mock_read);
+            MMFL_READMSG(&rbv,msg,len,mock_read,1);
+            MMFL_READMSG(&rbv,msg,len,mock_read,1);
+            msg=NULL;
+            MMFL_READMSG(&rbv,msg,len,mock_read,0);
             if(msg==NULL&&len>=0)
             {
                ;
             }
-            else if(msg==NULL&&len<0) perror("eof or error");
+            else if(msg==NULL&&len<0)
+            {
+              perror("eof or error");
+            }
             else 
             {
               if(NULL==(fgets(rdb,sizeof(rdb)-1,f)))
@@ -85,6 +93,10 @@ int main(int argc, char **argv)
               if(strcmp(rdb,msg)!=0)
               {
                 printf("FAIL: read '%s' instead of '%s'\n",msg,rdb);
+              }
+              if(strlen(rdb)!=len)
+              {
+                printf("FAIL: strings match but size is %d instead of real size %ld\n",len,strlen(rdb));
               }
             }
           } while(msg!=NULL);

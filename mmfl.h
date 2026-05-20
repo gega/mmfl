@@ -65,7 +65,7 @@
 
 _Static_assert(MMFL_LEN_BASE>=2 && MMFL_LEN_BASE<=36, "length base must be between 2 and 36");
 
-typedef struct rb_s
+typedef struct mmfl_s
 {
   long bp;
   int bsiz;
@@ -77,7 +77,7 @@ typedef struct rb_s
   char zero;
   int rdy;
   char sep;
-} rb_t;
+} mmfl_t;
 
 /*
  * message format on wire:
@@ -86,16 +86,16 @@ typedef struct rb_s
  * \n len <space> message
  */
 
-#define RB_INIT(r,b,s,f) do { \
-    bzero((r),sizeof(struct rb_s)); \
+#define MMFL_INIT(r,b,s,f) do { \
+    bzero((r),sizeof(struct mmfl_s)); \
     if(s>MMFL_HDR_MAX) { \
-      bzero((r),sizeof(struct rb_s)); (r)->buf=(b); (r)->bsiz=(s)-1; (r)->mlen=-1; (r)->fd=(f); \
+      bzero((r),sizeof(struct mmfl_s)); (r)->buf=(b); (r)->bsiz=(s)-1; (r)->mlen=-1; (r)->fd=(f); \
     } \
   } while(0)
 
-#define RB_IS_INITED(r) ((r)->buf!=NULL)
+#define MMFL_IS_INITED(r) ((r)->buf!=NULL)
 
-#define RB_READMSG(rs,rt,ln,rd,pk) \
+#define MMFL_READMSG(rs,rt,ln,rd,pk) \
 do { \
   if((rs)->buf==NULL) break; \
   if((rs)->rdy==1+MMFL_PEEK) { \
