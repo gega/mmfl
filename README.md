@@ -19,6 +19,17 @@ prefixed length generic stream protocol format like netstrings
 - message start detection
 - payload ASCII printable only (isprint())
 
+## configuration
+
+### MMFL_FD_TYPE
+
+Type of the `fd` argument for the `read` callback, default is `int`.
+
+### MMFL_LEN_BASE
+
+Base of the length part of the frame format, valid values between 2 and 36. The length 
+field is expected to be in this base when processing frames.
+
 ## format
 
 messages on wire 
@@ -32,12 +43,12 @@ format: `\n len <space> message`
 
 ## usage
 
-### `RB_INIT(rb, buf, size, fd)`
+### `MMFL_INIT(mmfl, buf, size, fd)`
 
 Initializes the message reader.
 
 - **Parameters**:
-  - `rb`: Pointer to an `rb_t` struct (reader state).
+  - `mmfl`: Pointer to an `mmfl_t` struct (reader state).
   - `buf`: Buffer for storing incoming bytes.
   - `size`: Size of `buf`. One byte is internally reserved, so actual usable size is `size - 1`.
   - `fd`: File descriptor or opaque user context passed to your `read` function.
@@ -46,16 +57,16 @@ Initializes the message reader.
 
 ```c
 char buffer[128];
-rb_t reader;
-RB_INIT(&reader, buffer, sizeof(buffer), fd);
+mmfl_t reader;
+MMFL_INIT(&reader, buffer, sizeof(buffer), fd);
 ```
 
-### `RB_READMSG(rb, msg_ptr, msg_len, read_func, flags)`
+### `MMFL_READMSG(mmfl, msg_ptr, msg_len, read_func, flags)`
 
 Reads and decodes the next complete message from the stream.
 
 - **Parameters**:
-  - `rb`: Pointer to the initialized rb_t struct.
+  - `mmfl`: Pointer to the initialized mmfl_t struct.
   - `msg_ptr`: Output pointer to the start of the message (within rb->buf).
   - `msg_len`: Output variable, will contain the length of the message.
   - `read_func`: A function with signature int (*)(int fd, void *buf, int len) for reading data from the stream (e.g., read() or your own source).
@@ -71,7 +82,7 @@ Reads and decodes the next complete message from the stream.
 ```c
 char *msg;
 int len;
-int rc = RB_READMSG(&reader, msg, len, my_read_func, 0);
+int rc = MMFL_READMSG(&reader, msg, len, my_read_func, 0);
 if (rc == 0) {
     // msg points to message content of length len
 }
